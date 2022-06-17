@@ -83,7 +83,7 @@ class LNURLPayParams {
   final int minSendable;
   final String metadata;
   final int commentAllowed;
-  final PayerData? payerData;
+  final PayerDataRecord? payerData;
 
   LNURLPayParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
@@ -92,7 +92,9 @@ class LNURLPayParams {
         maxSendable = json['maxSendable'],
         metadata = json['metadata'],
         commentAllowed = json['commentAllowed'] ?? 0,
-        payerData = PayerData.fromJson(json['payerData']);
+        payerData = json['payerData'] != null
+            ? PayerDataRecord.fromJson(json['payerData'])
+            : null;
 }
 
 class LNURLErrorResponse {
@@ -142,10 +144,32 @@ class PayerData {
   String? email;
   String? identifier;
 
+  PayerData({
+    this.name,
+    this.pubkey,
+    this.auth,
+    this.email,
+    this.identifier,
+  });
+
+  PayerData copyWith({
+    String? name,
+    String? pubkey,
+    Auth? auth,
+    String? email,
+    String? identifier,
+  }) =>
+      PayerData(
+          name: name ?? this.name,
+          pubkey: pubkey ?? this.pubkey,
+          auth: auth ?? this.auth,
+          email: email ?? this.email,
+          identifier: identifier ?? this.identifier);
+
   PayerData.fromJson(Map<String, dynamic> json)
       : name = json['name'],
         pubkey = json['pubkey'],
-        auth = Auth.fromJson(json["auth"]),
+        auth = json["auth"] != null ? Auth.fromJson(json["auth"]) : null,
         email = json['email'],
         identifier = json['identifier'];
 }
@@ -159,4 +183,43 @@ class Auth {
       : key = json['key'],
         k1 = json['k1'],
         sig = json['sig'];
+}
+
+class PayerDataRecord {
+  PayerDataRecordField? name;
+  PayerDataRecordField? pubkey;
+  AuthRecord? auth;
+  PayerDataRecordField? email;
+  PayerDataRecordField? identifier;
+
+  PayerDataRecord.fromJson(Map<String, dynamic> json)
+      : name = json["name"] != null
+            ? PayerDataRecordField.fromJson(json['name'])
+            : null,
+        pubkey = json["pubkey"] != null
+            ? PayerDataRecordField.fromJson(json['pubkey'])
+            : null,
+        auth = json["auth"] != null ? AuthRecord.fromJson(json["auth"]) : null,
+        email = json["email"] != null
+            ? PayerDataRecordField.fromJson(json['email'])
+            : null,
+        identifier = json["identifier"] != null
+            ? PayerDataRecordField.fromJson(json['identifier'])
+            : null;
+}
+
+class AuthRecord {
+  bool mandatory;
+  String k1;
+
+  AuthRecord.fromJson(Map<String, dynamic> json)
+      : mandatory = json['mandatory'],
+        k1 = json['k1'];
+}
+
+class PayerDataRecordField {
+  bool mandatory;
+
+  PayerDataRecordField.fromJson(Map<String, dynamic> json)
+      : mandatory = json['mandatory'];
 }
