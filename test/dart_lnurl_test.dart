@@ -36,9 +36,9 @@ void main() {
     final decrypted = decryptSuccessActionAesPayload(
       preimage: preimage,
       successAction: LNURLPaySuccessAction.fromJson({
+        'tag': 'aes',
         'cipherText': data.cipherText,
         'iv': data.iv,
-        'tag': 'aes',
       }),
     );
     expect(decrypted, plainText);

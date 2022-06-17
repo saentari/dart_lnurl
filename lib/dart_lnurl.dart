@@ -8,9 +8,9 @@ import 'package:dart_lnurl/src/lnurl.dart';
 import 'package:dart_lnurl/src/types.dart';
 import 'package:http/http.dart' as http;
 
-export 'src/types.dart';
-export 'src/success_action.dart';
 export 'src/bech32.dart';
+export 'src/success_action.dart';
+export 'src/types.dart';
 
 /// Get params from a lnurl string. Possible types are:
 /// * `LNURLResponse`
@@ -24,9 +24,14 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
   /// Try to parse the input as a lnUrl. Will throw an error if it fails.
   final lnUrl = findLnUrl(encodedUrl);
 
-  /// Decode the lnurl using bech32
-  final bech32 = Bech32Codec().decode(lnUrl, lnUrl.length);
-  final decodedUri = Uri.parse(utf8.decode(fromWords(bech32.data)));
+  late final Uri decodedUri;
+  if (lnUrl.startsWith('http')) {
+    decodedUri = Uri.parse(lnUrl);
+  } else {
+    /// Decode the lnurl using bech32
+    final bech32 = Bech32Codec().decode(lnUrl, lnUrl.length);
+    decodedUri = Uri.parse(utf8.decode(fromWords(bech32.data)));
+  }
 
   try {
     /// Call the lnurl to get a response
