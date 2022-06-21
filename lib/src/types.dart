@@ -172,6 +172,14 @@ class PayerData {
         auth = json["auth"] != null ? Auth.fromJson(json["auth"]) : null,
         email = json['email'],
         identifier = json['identifier'];
+
+  Map toJson() => {
+        'name': name,
+        'pubkey': pubkey,
+        'auth': auth?.toJson(),
+        'email': email,
+        'identifier': identifier,
+      };
 }
 
 class Auth {
@@ -179,10 +187,25 @@ class Auth {
   String? k1;
   String? sig;
 
+  Auth({
+    this.key,
+    this.k1,
+    this.sig,
+  });
+
+  Auth copyWith({String? key, String? k1, String? sig}) =>
+      Auth(key: key ?? this.key, k1: k1 ?? this.k1, sig: sig ?? this.sig);
+
   Auth.fromJson(Map<String, dynamic> json)
       : key = json['key'],
         k1 = json['k1'],
         sig = json['sig'];
+
+  Map toJson() => {
+        'key': key,
+        'k1': k1,
+        'sig': sig,
+      };
 }
 
 class PayerDataRecord {
