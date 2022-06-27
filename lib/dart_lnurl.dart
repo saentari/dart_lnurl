@@ -72,7 +72,10 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
 
       case 'login':
         return LNURLParseResult(
-          authParams: LNURLAuthParams.fromJson(parsedJson),
+          authParams: LNURLAuthParams.fromJson({
+            ...parsedJson,
+            ...{'domain': decodedUri.host}
+          }),
         );
 
       default:

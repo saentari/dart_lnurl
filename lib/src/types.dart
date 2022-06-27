@@ -23,12 +23,14 @@ class LNURLChannelParams {
   final String callback;
   final String k1;
   final String uri;
+  final String domain;
 
   LNURLChannelParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
         callback = json['callback'],
         k1 = json['k1'],
-        uri = json['uri'];
+        uri = json['uri'],
+        domain = json['domain'];
 }
 
 class LNURLHostedChannelParams {
@@ -36,12 +38,14 @@ class LNURLHostedChannelParams {
   final String k1;
   final String uri;
   final String alias;
+  final String domain;
 
   LNURLHostedChannelParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
         k1 = json['k1'],
         uri = json['uri'],
-        alias = json['alias'];
+        alias = json['alias'],
+        domain = json['domain'];
 }
 
 class LNURLWithdrawParams {
@@ -53,6 +57,7 @@ class LNURLWithdrawParams {
   final String defaultDescription;
   final String? balanceCheck;
   final String? payLink;
+  final String domain;
 
   LNURLWithdrawParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
@@ -62,18 +67,21 @@ class LNURLWithdrawParams {
         maxWithdrawable = json['maxWithdrawable'],
         defaultDescription = json['defaultDescription'],
         balanceCheck = json['balanceCheck'],
-        payLink = json['payLink'];
+        payLink = json['payLink'],
+        domain = json['domain'];
 }
 
 class LNURLAuthParams {
   final String tag;
   final String k1;
   final String? action;
+  final String domain;
 
   LNURLAuthParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
         k1 = json['k1'],
-        action = json['action'];
+        action = json['action'],
+        domain = json['domain'];
 }
 
 class LNURLPayParams {
@@ -84,6 +92,7 @@ class LNURLPayParams {
   final String metadata;
   final int commentAllowed;
   final PayerDataRecord? payerData;
+  final String domain;
 
   LNURLPayParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
@@ -94,7 +103,8 @@ class LNURLPayParams {
         commentAllowed = json['commentAllowed'] ?? 0,
         payerData = json['payerData'] != null
             ? PayerDataRecord.fromJson(json['payerData'])
-            : null;
+            : null,
+        domain = json['domain'];
 }
 
 class LNURLErrorResponse {
