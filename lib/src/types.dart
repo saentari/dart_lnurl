@@ -123,12 +123,16 @@ class LNURLErrorResponse {
 /// A success action will be returned when making a call to the lnUrl callback url.
 class LNURLPaySuccessAction {
   final String tag;
-  final String description;
-  final String cipherText;
-  final String iv;
+  final String? message;
+  final String? url;
+  final String? description;
+  final String? cipherText;
+  final String? iv;
 
   LNURLPaySuccessAction.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
+        message = json['message'],
+        url = json['url'],
         description = json['description'],
         cipherText = json['cipherText'],
         iv = json['iv'];

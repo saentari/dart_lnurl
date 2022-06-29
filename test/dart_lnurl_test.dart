@@ -33,15 +33,19 @@ void main() {
     /// Encrypt some data using the preimage as the key
     final data = encrypt(plainText, preimage);
 
-    final decrypted = decryptSuccessActionAesPayload(
-      preimage: preimage,
-      successAction: LNURLPaySuccessAction.fromJson({
-        'tag': 'aes',
-        'cipherText': data.cipherText,
-        'iv': data.iv,
-      }),
-    );
-    expect(decrypted, plainText);
+    LNURLPaySuccessAction successAction = LNURLPaySuccessAction.fromJson({
+      'description': 'Secret message',
+      'tag': 'aes',
+      'cipherText': data.cipherText,
+      'iv': data.iv,
+    });
+    if(validateSuccessAction(successAction: successAction)){
+      final decrypted = decryptSuccessActionAesPayload(
+        preimage: preimage,
+        successAction: successAction,
+      );
+      expect(decrypted, plainText);
+    }
   });
 
   test('should decode lnurl-pay', () async {

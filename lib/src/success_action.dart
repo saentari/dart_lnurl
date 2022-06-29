@@ -13,7 +13,7 @@ decryptSuccessActionAesPayload({
   }
 
   final key = Key.fromBase16(preimage);
-  final iv = IV.fromBase16(successAction.iv);
+  final iv = IV.fromBase16(successAction.iv!);
   final encrypter = Encrypter(
     AES(
       key,
@@ -22,9 +22,26 @@ decryptSuccessActionAesPayload({
   );
 
   final plainText = encrypter.decrypt(
-    Encrypted.fromBase16(successAction.cipherText),
+    Encrypted.fromBase16(successAction.cipherText!),
     iv: iv,
   );
 
   return plainText;
+}
+
+bool validateSuccessAction({
+  required LNURLPaySuccessAction successAction,
+}) {
+  switch (successAction.tag) {
+    case 'aes':
+      return (successAction.iv != null &&
+          successAction.cipherText != null &&
+          successAction.description != null);
+    case 'message':
+      return (successAction.message != null);
+    case 'url':
+      return (successAction.url != null && successAction.description != null);
+    default:
+      return false;
+  }
 }
