@@ -142,13 +142,15 @@ class LNURLPayResult {
   final String pr;
   final List<List<Object>> routes;
   final bool disposable;
-  final LNURLPaySuccessAction successAction;
+  final LNURLPaySuccessAction? successAction;
 
   LNURLPayResult.fromJson(Map<String, dynamic> json)
       : pr = json['pr'],
         routes = json['routes'],
         disposable = json['disposable'] ?? true,
-        successAction = json['successAction'];
+        successAction = json['successAction'] != null
+            ? LNURLPaySuccessAction.fromJson(json['successAction'])
+            : null;
 }
 
 class PayerData {
