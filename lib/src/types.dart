@@ -148,7 +148,7 @@ class LNURLPayResult {
 
   LNURLPayResult.fromJson(Map<String, dynamic> json)
       : pr = json['pr'],
-        routes = json['routes'],
+        routes = (json['routes'] as List<dynamic>).cast<List<Object>>(),
         disposable = json['disposable'] ?? true,
         successAction = json['successAction'] != null
             ? LNURLPaySuccessAction.fromJson(json['successAction'])
