@@ -58,6 +58,7 @@ class LNURLWithdrawParams {
   final String? balanceCheck;
   final String? payLink;
   final String domain;
+  final String pr;
 
   LNURLWithdrawParams.fromJson(Map<String, dynamic> json)
       : tag = json['tag'],
@@ -68,7 +69,8 @@ class LNURLWithdrawParams {
         defaultDescription = json['defaultDescription'],
         balanceCheck = json['balanceCheck'],
         payLink = json['payLink'],
-        domain = json['domain'];
+        domain = json['domain'],
+        pr = json['pr'];
 }
 
 class LNURLAuthParams {
