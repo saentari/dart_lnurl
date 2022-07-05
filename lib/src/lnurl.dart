@@ -4,7 +4,7 @@ RegExp lud17schemePrefix = RegExp('(lnurl)(c|w|p)');
 /// Parse and return a given lnurl string if it's valid. Will remove
 /// `lightning:` from the beginning of it if present.
 String findLnUrl(String input) {
-  final lnurlPrefixMatch = lnurlPrefix.firstMatch(input);
+  final lnurlPrefixMatch = lnurlPrefix.firstMatch(input.toLowerCase());
   if (lnurlPrefixMatch is RegExpMatch) {
     return lnurlPrefixMatch[0]!;
   }
