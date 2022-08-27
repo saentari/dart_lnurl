@@ -34,58 +34,66 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
   }
 
   try {
-    /// Call the lnurl to get a response
-    final res = await http.get(decodedUri);
+    Map<String, dynamic> uriParams = {};
 
-    /// If there's an error then throw it
-    if (res.statusCode >= 300) {
-      throw res.body;
+    /// No HTTP GET when tag holds login value
+    if (decodedUri.query.contains('tag=login')) {
+      /// Extract parameters from uri
+      uriParams = decodedUri.queryParameters;
+    } else {
+      /// Call the lnurl to get a response
+      final res = await http.get(decodedUri);
+
+      /// If there's an error then throw it
+      if (res.statusCode >= 300) {
+        throw res.body;
+      }
+
+      /// Parse the response body to json
+      uriParams = json.decode(res.body);
     }
-
-    /// Parse the response body to json
-    Map<String, dynamic> parsedJson = json.decode(res.body);
 
     /// If it contains a callback then add the domain as a key
-    if (parsedJson['callback'] != null) {
-      parsedJson['domain'] = Uri.parse(parsedJson['callback']).host;
+    if (uriParams['callback'] != null) {
+      uriParams['domain'] = Uri.parse(uriParams['callback']).host;
     }
 
-    if (parsedJson['tag'] == null) {
+    if (uriParams['tag'] == null) {
       throw Exception('Response was missing a tag');
     }
 
-    switch (parsedJson['tag']) {
+    switch (uriParams['tag']) {
       case 'withdrawRequest':
         return LNURLParseResult(
           withdrawalParams: LNURLWithdrawParams.fromJson({
-            ...parsedJson,
+            ...uriParams,
             ...{'pr': lnUrl}
           }),
         );
 
       case 'payRequest':
         return LNURLParseResult(
-          payParams: LNURLPayParams.fromJson(parsedJson),
+          payParams: LNURLPayParams.fromJson(uriParams),
         );
 
       case 'channelRequest':
         return LNURLParseResult(
-          channelParams: LNURLChannelParams.fromJson(parsedJson),
+          channelParams: LNURLChannelParams.fromJson(uriParams),
         );
 
       case 'login':
         return LNURLParseResult(
           authParams: LNURLAuthParams.fromJson({
-            ...parsedJson,
+            ...uriParams,
             ...{'domain': decodedUri.host}
           }),
         );
 
       default:
-        if (parsedJson['status'] == 'ERROR') {
+        if (uriParams['status'] == 'ERROR') {
           return LNURLParseResult(
             error: LNURLErrorResponse.fromJson({
-              ...parsedJson,
+              ...uriParams,
               ...{
                 'domain': decodedUri.host,
                 'url': decodedUri.toString(),
@@ -94,7 +102,7 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
           );
         }
 
-        throw Exception('Unknown tag: ${parsedJson['tag']}');
+        throw Exception('Unknown tag: ${uriParams['tag']}');
     }
   } catch (e) {
     return LNURLParseResult(
