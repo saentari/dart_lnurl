@@ -115,3 +115,12 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
     );
   }
 }
+
+bool validateLnUrl(encodedUrl) {
+  try {
+    findLnUrl(encodedUrl);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

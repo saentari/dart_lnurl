@@ -1,11 +1,21 @@
 import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:dart_lnurl/src/lnurl.dart';
-import 'package:dart_lnurl/src/types.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'util.dart';
 
 void main() {
+  test('should match as valid lnurl', () {
+    final lnurl =
+        'lnurl1dp68gurn8ghj7mrww4exctt5dahkccn00qhxget8wfjk2um0veax2un09e3k7mf0w5lhz0t9xcekzv34vgcx2vfkvcurxwphvgcrwefjvgcnqwrpxqmkxven89skgvp3vs6nwvpjvy6njdfsx5ekgephvcurxdf5xcerwvecvyunsf32lqq';
+    expect(validateLnUrl(lnurl), true);
+  });
+
+  test('should match as invalid lnurl', () {
+    final lnurl = 'InvalidLightningUrlString';
+    expect(validateLnUrl(lnurl), false);
+  });
+
   test('should match lnurl without lightning:', () {
     final lnurl =
         'lnurl1dp68gurn8ghj7mrww4exctt5dahkccn00qhxget8wfjk2um0veax2un09e3k7mf0w5lhz0t9xcekzv34vgcx2vfkvcurxwphvgcrwefjvgcnqwrpxqmkxven89skgvp3vs6nwvpjvy6njdfsx5ekgephvcurxdf5xcerwvecvyunsf32lqq';
