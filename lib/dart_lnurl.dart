@@ -24,14 +24,7 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
   /// Try to parse the input as a lnUrl. Will throw an error if it fails.
   final lnUrl = findLnUrl(encodedUrl);
 
-  late final Uri decodedUri;
-  if (lnUrl.startsWith('http')) {
-    decodedUri = Uri.parse(lnUrl);
-  } else {
-    /// Decode the lnurl using bech32
-    final bech32 = Bech32Codec().decode(lnUrl, lnUrl.length);
-    decodedUri = Uri.parse(utf8.decode(fromWords(bech32.data)));
-  }
+  final Uri decodedUri = decodeLnUri(encodedUrl);
 
   try {
     Map<String, dynamic> uriParams = {};
@@ -114,6 +107,20 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
       }),
     );
   }
+}
+
+Uri decodeLnUri(String encodedUrl) {
+  final lnUrl = findLnUrl(encodedUrl);
+
+  late final Uri decodedUri;
+  if (lnUrl.startsWith('http')) {
+    decodedUri = Uri.parse(lnUrl);
+  } else {
+    /// Decode the lnurl using bech32
+    final bech32 = Bech32Codec().decode(lnUrl, lnUrl.length);
+    decodedUri = Uri.parse(utf8.decode(fromWords(bech32.data)));
+  }
+  return decodedUri;
 }
 
 bool validateLnUrl(encodedUrl) {
