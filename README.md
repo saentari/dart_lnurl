@@ -11,6 +11,7 @@ A Dart implementation of lnurl to decode bech32 lnurl strings or raw (non bech32
 * ✅ Decode a bech32-encoded lnurl string.
 * ✅ Handle LUD-17: Protocol schemes and raw (non bech32-encoded) URLs.
 * ✅ Make GET request to the decoded ln service and return the response.
+* ✅ LinkingKey derivation for BIP-32 based wallets.
 
 
 Learn more about the lnurl spec here: https://github.com/btcontract/lnurl-rfc

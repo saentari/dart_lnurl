@@ -1,6 +1,8 @@
+import 'package:bip32/bip32.dart' as bip32;
 import 'package:dart_lnurl/dart_lnurl.dart';
 import 'package:dart_lnurl/src/lnurl.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hex/hex.dart';
 
 import 'util.dart';
 
@@ -73,5 +75,37 @@ void main() {
     final res = await getParams(url);
     expect(res.authParams, isNotNull);
     expect(res.error, isNull);
+  });
+
+  test('should create linkingKey derivation for BIP-32 based wallet', () async {
+    const url =
+        'lightning:LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NWCNYXSMKVCEKX3JRSCF4X3SKXWTXXASNGVE5XQ6RZDMXXC6KXDE3VYCRZCENXF3NQVF5XCEXZE3JXVMRGVRY8YURJVNYV43RGDRRVGN8GCT884KX7EMFDCV8DETA';
+    final masterKey = bip32.BIP32.fromBase58(
+        'xprv9s21ZrQH143K4DRBUU8Dp25M61mtjm9T3LsdLLFCXL2U6AiKEqs7dtCJWGFcDJ9DtHpdwwmoqLgzPrW7unpwUyL49FZvut9xUzpNB6wbEnz');
+    const linkingPubKeyHex =
+        '034c9c690b5f8e07517bcf16fda57c8fb363ad5edab66fccaa1cbf2287d186fa83';
+    final linkingKey = await deriveLinkingKey(url, masterKey);
+    final derivedPubKeyHex = HEX.encode(linkingKey.publicKey);
+
+    /// linkingPubKeyHex is send as an identifier (key) to servers
+    expect(derivedPubKeyHex, linkingPubKeyHex);
+  });
+
+  test('should create signature from signed k1 with linkingKey', () async {
+    const url =
+        'lightning:LNURL1DP68GURN8GHJ7MRFVA58GMNFDENKCMM8D9HZUMRFWEJJ7MR0VA5KU0MTXY7NWCNYXSMKVCEKX3JRSCF4X3SKXWTXXASNGVE5XQ6RZDMXXC6KXDE3VYCRZCENXF3NQVF5XCEXZE3JXVMRGVRY8YURJVNYV43RGDRRVGN8GCT884KX7EMFDCV8DETA';
+    final masterKey = bip32.BIP32.fromBase58(
+        'xprv9s21ZrQH143K4DRBUU8Dp25M61mtjm9T3LsdLLFCXL2U6AiKEqs7dtCJWGFcDJ9DtHpdwwmoqLgzPrW7unpwUyL49FZvut9xUzpNB6wbEnz');
+    const expectedSig =
+        '304402203b6f6fb1c0ae2fcac3b5cce2d528f040f26622470c8bb7ada3fa8c158b4b7c0a02207296db00fdb38f839eae197d90bfca79aa2cbe0d081025f8277fe10e5017bd20';
+    const callBackUrl =
+        'https://lightninglogin.live/login?k1=7bd47fc64d8a54ac9f7a4340417f65c71a01c32c01462af23640d9892deb44cb&tag=login&sig=304402203b6f6fb1c0ae2fcac3b5cce2d528f040f26622470c8bb7ada3fa8c158b4b7c0a02207296db00fdb38f839eae197d90bfca79aa2cbe0d081025f8277fe10e5017bd20&key=034c9c690b5f8e07517bcf16fda57c8fb363ad5edab66fccaa1cbf2287d186fa83';
+    final linkingKey = await deriveLinkingKey(url, masterKey);
+    final key = HEX.encode(linkingKey.publicKey);
+    final sig = await signK1(url, linkingKey);
+    final decodedUrl = decodeLnUri(url);
+    final callback = '$decodedUrl&sig=${sig}&key=${key}';
+    expect(sig, expectedSig);
+    expect(callback, callBackUrl);
   });
 }

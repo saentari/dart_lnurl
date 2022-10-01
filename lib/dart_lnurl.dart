@@ -1,11 +1,17 @@
 library dart_lnurl;
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:bech32/bech32.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dart_lnurl/src/bech32.dart';
 import 'package:dart_lnurl/src/lnurl.dart';
 import 'package:dart_lnurl/src/types.dart';
+import 'package:ecdsa/ecdsa.dart' as ecdsa;
+import 'package:elliptic/elliptic.dart';
+import 'package:encrypt/encrypt.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 export 'src/bech32.dart';
@@ -30,7 +36,8 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
     Map<String, dynamic> uriParams = {};
 
     /// No HTTP GET when tag holds login value
-    if (decodedUri.query.contains('tag=login')) {
+    if (decodedUri.query.contains('tag=login') &&
+        decodedUri.query.contains('sig') == false) {
       /// Extract parameters from uri
       uriParams = decodedUri.queryParameters;
     } else {
@@ -111,7 +118,6 @@ Future<LNURLParseResult> getParams(String encodedUrl) async {
 
 Uri decodeLnUri(String encodedUrl) {
   final lnUrl = findLnUrl(encodedUrl);
-
   late final Uri decodedUri;
   if (lnUrl.startsWith('http')) {
     decodedUri = Uri.parse(lnUrl);
@@ -130,4 +136,41 @@ bool validateLnUrl(encodedUrl) {
   } catch (e) {
     return false;
   }
+}
+
+/// LUD-05: BIP32-based seed generation for auth protocol.
+Future<dynamic> deriveLinkingKey(url, masterKey) async {
+  /// Domain is message, secret is m/138'/0 private key for HMAC-SHA256
+  final res = await getParams(url);
+  final messageString = res.authParams!.domain;
+  const pathPrefix = "m/138'/0";
+  final hashingKey = masterKey.derivePath(pathPrefix);
+  final hashingPrivKey = hashingKey.privateKey;
+  final secret = hashingPrivKey!;
+  final hmacSha256 = new Hmac(sha256, secret); // HMAC-SHA256
+  final digest = hmacSha256.convert(utf8.encode(messageString));
+
+  /// Convert first 16 bytes of 32x 1byte array to array of 4x 4byte unsigned integers (Uint32)
+  List pathSuffix =
+      Uint8List.fromList(digest.bytes).buffer.asUint32List().sublist(0, 4);
+
+  /// Use those 4x 4byte integers as 4 parts of path after m/138'/
+  final path = "m/138'/${pathSuffix.join('/')}";
+
+  /// Return LinkingKey
+  return masterKey.derivePath(path);
+}
+
+Future<String> signK1(url, linkingKey) async {
+  final res = await getParams(url);
+  final linkingPrivKey = linkingKey.privateKey!;
+
+  /// Sign k1 with linkingPrivKey
+  final k1Buffer = decodeHexString(res.authParams!.k1);
+  final ec = getSecp256k1();
+  final priv = PrivateKey.fromBytes(ec, linkingPrivKey);
+  final signedK1 = ecdsa.deterministicSign(priv, k1Buffer);
+
+  /// Convert k1 signature to hex values
+  return signedK1.toDERHex();
 }
