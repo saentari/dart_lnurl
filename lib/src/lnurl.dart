@@ -13,7 +13,11 @@ String findLnUrl(String input) {
     if (Uri.tryParse(input)?.hasAbsolutePath ?? false) {
       // Replace prefix with https for clearnet URL's, http for onion URLs
       var prefix = RegExp(r'\.onion($|\W)').hasMatch(input) ? 'http' : 'https';
-      return input.replaceFirst(lud17schemePrefix, prefix);
+      if (input.contains(lud17schemePrefix)) {
+        return input.replaceFirst(lud17schemePrefix, prefix);
+      } else if (input.startsWith('keyauth://')) {
+        return input.replaceFirst('keyauth', prefix);
+      }
     }
   }
   throw ArgumentError('Not a valid lnurl string');

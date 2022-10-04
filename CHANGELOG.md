@@ -1,3 +1,8 @@
+## [0.2.1] - 2022.10.04
+- Extended and reorganized LNURL testcases
+- Updated README with full, partial or no support for LUDs
+- Fix: replaced keyauth with https for keyauth-scheme input
+
 ## [0.2.0] - 2022.10.01
 - Added LUD-05
 
