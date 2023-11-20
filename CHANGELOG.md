@@ -1,3 +1,6 @@
+## [1.0.0] - 2023.11.20
+- Increased min SDK and dependency versions
+
 ## [0.2.1] - 2022.10.04
 - Extended and reorganized LNURL testcases
 - Updated README with full, partial or no support for LUDs
